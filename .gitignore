@@ -3,3 +3,4 @@ secret_key.txt
 qrcodes/
 ssl_cert.pem
 ssl_key.key
+__pycache__

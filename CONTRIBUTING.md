@@ -26,3 +26,33 @@ Thank you for considering contributing to our project! We appreciate your effort
 8. **Review Process**: After submitting your pull request, a project maintainer will review your changes. Be responsive to any feedback or requests for revisions.
 9. **Address Feedback**: If requested changes are needed, make the necessary updates to your branch and push the changes. Your pull request will be re-evaluated after the updates.
 10. Merge: Once your pull request is approved and all checks pass, it will be merged into the main branch, Congratulations on your contribution!
+
+## How to Make an Issue
+
+When you encounter a bug, have a feature request, or have a question, please follow these guidelines to help maintainers and the community understand and address your issue effectively.
+
+### Before Submitting an Issue
+
+1. **Search for Duplicates**: Before submitting a new issue, please search the [issues](https://github.com/A-c0rN/ASMARA/issues) to see if a similar issue has already been reported. If a duplicate is found, you can add your comments to the existing issue.
+
+2. **Check the Documentation**: Ensure that your question or problem is not addressed in the project's documentation or README.
+
+### Submitting an Issue
+
+1. **Choose the Right Template**: If available, use the issue template that best matches your issue type. This helps maintainers understand the context of your issue.
+
+2. **Provide Detailed Information**: When submitting an issue, provide as much detail as possible. This includes:
+   - A clear and descriptive title.
+   - A detailed description of the issue, including steps to reproduce, expected behavior, and actual behavior.
+   - Any relevant code snippets, error messages, or screenshots.
+   - Information about your environment (e.g., operating system, Python version, etc.).
+
+3. **Follow the Issue Submission Guidelines**: Ensure that your issue submission adheres to the project's guidelines. This might include specific formatting or content requirements.
+
+### After Submitting an Issue
+
+1. **Be Responsive**: If a maintainer asks for more information, be responsive and provide the requested details.
+
+2. **Follow Up**: If your issue is closed, do not open a new issue unless there is a significant change in the circumstances.
+
+By following these guidelines, you help maintainers and the community understand and address your issue more effectively, leading to faster resolution times.
