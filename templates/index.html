@@ -35,44 +35,6 @@
             </div>
         </nav>
 
-        <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl m-4 content-center">
-            <div class="md:flex">
-                <div class="md:flex-shrink-0">
-                    <img class="h-48 w-full object-cover md:w-48" src="/assets/asmara-stats.png" alt="Statistics Icon">
-                </div>
-                <div class="p-8">
-                    <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Statistics</div>
-                    <div id="statistics" class="mt-2">
-                        <!-- Statistics will be loaded here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script>
-            fetch('/apiv1/statistics')
-                .then(response => response.json())
-                .then(data => {
-                    // Process and display the data in the 'statistics' div
-                    const statsDiv = document.getElementById('statistics');
-                    statsDiv.innerHTML = ''; // Clear the div first
-                    Object.keys(data).forEach(key => {
-                        const p = document.createElement('p');
-                        if (typeof data[key] === 'object' && data[key] !== null) {
-                            // Handle nested objects like breakdowns
-                            let breakdownStr = '';
-                            Object.entries(data[key]).forEach(([subKey, subValue]) => {
-                                breakdownStr += `${subKey}: ${subValue}, `;
-                            });
-                            p.textContent = `${key}: ${breakdownStr.slice(0, -2)}`; // Remove trailing comma and space
-                        } else {
-                            p.textContent = `${key}: ${data[key]}`;
-                        }
-                        statsDiv.appendChild(p);
-                    });
-                })
-                .catch(error => console.error('Error fetching statistics:', error));
-            </script>
-
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
