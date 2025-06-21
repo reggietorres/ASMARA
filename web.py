@@ -231,10 +231,12 @@ def send_alert():
         # Call the function to send the alert (this is a placeholder)
         #result = send_alert_function(alert_type, alert_org, alert_exp, alert_areas,alert_jjjhhmm, alert_station)
 
-        #if result:
-        #    return jsonify({'message': 'Alert sent successfully'}),  201
-        #else:
-        #    return jsonify({'error': 'Failed to send alert'}),  500
+        result = True
+        
+        if result:
+            return jsonify({'message': 'Alert sent successfully'}),  201
+        else:
+            return jsonify({'error': 'Failed to send alert'}),  500
 
 
 if __name__ == '__main__':
