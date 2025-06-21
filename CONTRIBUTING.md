@@ -8,9 +8,9 @@ Thank you for considering contributing to our project! We appreciate your effort
 
 2. **Create a Branch**: Create a new branch for your feature or bug fix. Use a descriptive name that reflects the purpose of your changes.
 
-3. **Make Changes**: Make your changes to the codebase. Ensure that your modifications adhere to the project's coding standards and guidelines.
+3. **Make Changes**: Make your changes to the codebase. Ensure that your modifications adhere to the project's guidelines.
 
-4. **Test Your Changes**: Before submitting a pull request, test your changes locally to ensure they function as expected. If applicable, write tests to cover your code changes.
+4. **Test Your Changes**: Before submitting a pull request, test your changes locally to ensure they function as expected.
 
 5. **Commit Your Changes**: Commit your changes with clear and concise commit messages. Include details about what you have changed and why, Include in-depth documentation on changes both in the commits and in the pull requests, including any relevant context or reasoning.
 
@@ -29,25 +29,19 @@ Thank you for considering contributing to our project! We appreciate your effort
 
 ## How to Make an Issue
 
-When you encounter a bug, have a feature request, or have a question, please follow these guidelines to help maintainers and the community understand and address your issue effectively.
+When you encounter a bug, have a feature request, or have a question, please follow these guidelines to help maintainers understand and address your issue effectively.
 
 ### Before Submitting an Issue
 
 1. **Search for Duplicates**: Before submitting a new issue, please search the [issues](https://github.com/A-c0rN/ASMARA/issues) to see if a similar issue has already been reported. If a duplicate is found, you can add your comments to the existing issue.
 
-2. **Check the Documentation**: Ensure that your question or problem is not addressed in the project's documentation or README.
-
 ### Submitting an Issue
 
-1. **Choose the Right Template**: If available, use the issue template that best matches your issue type. This helps maintainers understand the context of your issue.
-
-2. **Provide Detailed Information**: When submitting an issue, provide as much detail as possible. This includes:
+1. **Provide Detailed Information**: When submitting an issue, provide as much detail as possible. This includes:
    - A clear and descriptive title.
    - A detailed description of the issue, including steps to reproduce, expected behavior, and actual behavior.
    - Any relevant code snippets, error messages, or screenshots.
    - Information about your environment (e.g., operating system, Python version, etc.).
-
-3. **Follow the Issue Submission Guidelines**: Ensure that your issue submission adheres to the project's guidelines. This might include specific formatting or content requirements.
 
 ### After Submitting an Issue
 
