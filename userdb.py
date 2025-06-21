@@ -16,13 +16,13 @@ from pyotp import TOTP, random_base32
 USEQUERY = "USE asmara;"
 
 
-def makeSSL():
+def makeSSL(force):
     key_file = "ssl_key.key"
     cert_file = "ssl_cert.pem"
     cert_dir = "."
 
-# Check if the key and certificate files exist
-    if not os.path.exists(os.path.join(cert_dir, key_file)) or not os.path.exists(os.path.join(cert_dir, cert_file)):
+    # Check if the key and certificate files exist
+    if force == True or not os.path.exists(os.path.join(cert_dir, key_file)) and os.path.exists(os.path.join(cert_dir, cert_file)):
         # Generate a new private key
         private_key = rsa.generate_private_key(
             public_exponent=65537,
@@ -221,6 +221,7 @@ if __name__ == '__main__':
     init_parser = subparsers.add_parser('init', help='Initialize the database and create the users table.')
 
     mkSSL_parser = subparsers.add_parser('mkSSL', help='Create The Files needed to run in HTTPS/SSL mode')
+    mkSSL_parser.add_argument('-f', '--force', help='Force regeneration of SSL files if they already exist.', action='store_true')
 
     args = parser.parse_args()
 
@@ -245,6 +246,9 @@ if __name__ == '__main__':
     elif args.command == 'init':
         initialize_database(connection)
     elif args.command == 'mkSSL':
-        makeSSL()
+        if args.force:
+            makeSSL(force=True)
+        else:
+            makeSSL(force=False)
 
     close_connection(connection)

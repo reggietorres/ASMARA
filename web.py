@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql.expression import desc, func
 from OpenSSL import crypto
 
+current_version = "v1_alpha"
 
 def load_or_generate_secret_key(filename='secret_key.txt'):
     try:
@@ -200,6 +201,10 @@ def logout():
 class Alert:
     def getJJJHHMM():
         return datetime.utcnow().strftime("%j%H%M")
+    
+@app.route(API_PREFIX + '/version', methods=['GET'])
+def getver():
+    return jsonify({"version": current_version}), 200
 
 @login_required
 @app.route(API_PREFIX + '/alert/send', methods=['POST'])
@@ -224,45 +229,13 @@ def send_alert():
             return jsonify({'error': 'Precondition Failed'}), 412
 
         # Call the function to send the alert (this is a placeholder)
-        result = send_alert_function(alert_type, alert_org, alert_exp, alert_areas,alert_jjjhhmm, alert_station)
+        #result = send_alert_function(alert_type, alert_org, alert_exp, alert_areas,alert_jjjhhmm, alert_station)
 
-        if result:
-            return jsonify({'message': 'Alert sent successfully'}),  201
-        else:
-            return jsonify({'error': 'Failed to send alert'}),  500
-def send_alert_function(type,org,exp,areas,JJJHHMM,station):
-    msg = f"sendAlert {org} {type} {areas} {exp} {JJJHHMM} {station}"
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_ip = "127.0.0.1"
-    server_port =  6765
-    client.connect((server_ip, server_port))
+        #if result:
+        #    return jsonify({'message': 'Alert sent successfully'}),  201
+        #else:
+        #    return jsonify({'error': 'Failed to send alert'}),  500
 
-    # Receive and decode the initial password request message
-    response = client.recv(1024)
-    response = response.decode("utf-8")
-
-    # Send the password
-    client.send(password.encode("utf-8"))
-
-    # Receive and decode the authentication confirmation message
-    response = client.recv(1024)
-    response = response.decode("utf-8")
-
-    # Send the sendAlert message only once
-    client.send(msg.encode("utf-8"))
-
-    # Receive and decode the server's response
-    response = client.recv(1024)
-    response = response.decode("utf-8")
-
-    client.close()
-
-    if response == "Failed to Send Alert":
-        return False
-    elif response == "Sent!":
-        return True
-    else:
-        return False
 
 if __name__ == '__main__':
     key_file = "ssl_key.key"

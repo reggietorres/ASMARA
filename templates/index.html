@@ -35,6 +35,11 @@
             </div>
         </nav>
 
+        <div class="bg-white p-4 rounded shadow-lg mt-4" id="versionPanel">
+            <h2 class="text-xl font-bold mb-2">Version Information</h2>
+            <div id="currentVersion"></div>
+        </div>
+
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
@@ -46,6 +51,24 @@
             <button onclick="extendSession()" class="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Extend Session</button>
         </div>
         <!-- ... -->
+
+        <script>
+            function fetchCurrentVersion() {
+                fetch('/apiv1/version')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('currentVersion').innerHTML = `<p>Current Version: ${data.version}</p>`;
+                    })
+                    .catch(error => console.error('Error fetching current version:', error));
+            }
+
+        
+        </script>
         <script>
             var logoutWarningTimeout;
             var logoutTimeout =  300000; //   5 minutes in milliseconds
@@ -102,8 +125,8 @@
                 window.location.href = "/logout";
             }
 
-            // Show the logout warning after   5 minutes of inactivity
             window.onload = () => {
+                fetchCurrentVersion();
                 logoutWarningTimeout = setTimeout(showLogoutWarning, logoutTimeout);
             };
 
