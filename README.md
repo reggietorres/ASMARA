@@ -1,8 +1,4 @@
 
-### See you space cowboy
-ASMARA is dead, A-C0rN killed it. It was fun. See you next time
-
-
 ![ASMARA](https://github.com/A-c0rN/ASMARA/blob/main/assets/asmara-white-text.png)
 
 ### Automated System for Monitoring And Relaying Alerts
