@@ -1,10 +1,10 @@
 
-![ASMARA](https://github.com/A-c0rN/ASMARA/blob/main/assets/asmara-white-text.png)
+![ASMARA](https://github.com/reggietorres/ASMARA/blob/main/assets/asmara-white-text.png)
 
 ### Automated System for Monitoring And Relaying Alerts
 The comprehensive software EAS solution.
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/A-c0rN/ASMARA/main_runner.yml?style=flat-square) ![GitHub language count](https://img.shields.io/github/languages/count/A-c0rN/ASMARA?style=flat-square) ![GitHub](https://img.shields.io/github/license/A-c0rN/ASMARA?style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/reggietorres/ASMARA/main_runner.yml?style=flat-square) ![GitHub language count](https://img.shields.io/github/languages/count/reggietorres/ASMARA?style=flat-square) ![GitHub](https://img.shields.io/github/license/reggietorres/ASMARA?style=flat-square)
 
 ## Features
 > - [x] EAS Generation and Translation using stable and tested systems
@@ -110,4 +110,17 @@ to use `.config2` as the selected config file. If the file does not exist, it wi
 ## Changelog
 DO LATER
 
-###### Copyright © 2024 MissingTextures Software
+## License Transition Notice
+This project was originally forked from the ASMARA repository, which was licensed under the
+Open Database License (ODbL). The original repository is no longer maintained and has been
+seemingly permanently removed. As the maintainer of the surviving fork, I have re-licensed
+this project under the newly created ASMARA Public License (APL) v1.0
+
+The ODbL, being designed for databases, was not appropriate for this codebase.
+So in order to preserve openness and legal clarity, this project now follows the APL, which
+requires attribution, mandates sharing of modifications, and disclaims liability.
+
+Any new contributions made after 22/08/2025 1:50:00z are exclusively under the APL v1.0 
+
+###### Copyright © 2025 Reggietorres
+
