@@ -1429,10 +1429,10 @@ class AS_MAN:
     __alertSent__ = False
 
     @classmethod
-    """
-    Increment alert/override/live/CAP/message counters for statistics.
-    """
     def __addCount__(cls, type):
+        """
+        Increment alert/override/live/CAP/message counters for statistics.
+        """
         if type == "Override":
             cls.__overrideCount__ += 1
         elif type == "Live":
