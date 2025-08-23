@@ -1445,25 +1445,25 @@ class AS_MAN:
         cls.__messageCount__ += 1
 
     @classmethod
-    """
-    Set current configuration and config file path.
-    """
     def __setConfig__(cls, config, configFile):
+        """
+        Set current configuration and config file path.
+        """
         cls.__config__ = config
         cls.__configFile__ = configFile
 
     @classmethod
-    """
-    Set the log file path from config.
-    """
     def __setLog__(cls):
+        """
+        Set the log file path from config.
+        """
         cls.__logFile__ = cls.__config__["LogFile"]
 
     @classmethod
-    """
-    Set the station callsign, trimming or padding as needed.
-    """
     def __setCallsign__(cls):
+        """
+        Set the station callsign, trimming or padding as needed.
+        """
         if len(cls.__config__["Callsign"]) <= 8:
             cls.__callsign__ = cls.__config__["Callsign"].ljust(8, " ")
         else:
