@@ -1,6 +1,19 @@
-"""
-Note: Please do absolute imports, it allows me to clean up shit we don't use, and doesn't import extra code. It should be more efficient anyways.
-"""
+
+# =========================
+# ASMARA Main Module
+# =========================
+# Note: Please only use absolute imports for efficiency and to avoid unused imports.
+# This file contains the main classes and logic for the ASMARA Automated System for Monitoring and Relaying Alerts
+#
+# Key Classes:
+#   - AS_MON: Handles monitoring, decoding, and recording of alerts.
+#   - AS_MAN: Manages configuration, playout, logging, and system state.
+#
+# Main entrypoint: boot() and main()
+# ========================
+#
+
+
 # Standard Library
 from datetime import datetime as DT
 from datetime import timezone as TZ
@@ -46,6 +59,11 @@ liveAlert = {}
 
 
 class AS_MON(Process):
+    """
+    ASMARA Monitor (AS_MON)
+    Inherits from the multiprocessing.Process. Handles monitoring of a single alert stream (audio from IP or radio)
+    decoding SAME headers, filtering, and recording alert audio. Manages alert state and relaying.
+    """
     global currentAlert
     global liveAlert
     __monitors__ = {}
@@ -57,6 +75,10 @@ class AS_MON(Process):
     __useATTNDT__ = True
 
     def __init__(self, URL: str = "") -> None:
+        """
+        Initialize a new monitor for a given URL or device.
+        Supports dict input for audio/radio types. Spawns decoder and monitor threads.
+        """
         self.__monitorName__ = None
         self.__monitor__ = {
             "Type": "Stream",
@@ -104,6 +126,9 @@ class AS_MON(Process):
         self.__decThread__.start()
 
     def killMon(self):
+        """
+        Terminates the monitor's decoder and recorder subprocesses.
+        """
         self.__monitor__["State"] = False
         while self.__decode__.poll() == None:
             self.__decode__.terminate()
@@ -127,21 +152,37 @@ class AS_MON(Process):
 
     @classmethod
     def __updateMon__(cls, monName, mon):
+        """
+        Update the monitor registry with the current monitor state.
+        """
         cls.__monitors__[monName] = mon
 
     @classmethod
     def __liveLock__(cls):
+        """
+        Lock live alert state to prevent multiple live relays.
+        """
         cls.__liveAlertLock__ = True
 
     @classmethod
     def __LiveUnlock__(cls):
+        """
+        Unlock live alert state after live relay is complete.
+        """
         cls.__liveAlertLock__ = False
 
     @classmethod
     def __liveStatus__(cls):
+        """
+        return True if a live alert is being relayed
+        """
         return cls.__liveAlertLock__
 
     def __MonState__(self, update: bool = False):
+        """
+        Return the current state of the monitor (Online/Offline/Disabled).
+        If update=True, update the monitor registry.
+        """
         if update:
             self.__updateMon__(self.__monitorName__, self.__monitor__)
         else:
@@ -154,6 +195,10 @@ class AS_MON(Process):
             )
 
     def __ATTNDetection__(self, pkt, bufferSize, sampleRate, window):
+        """
+        Detects the presence of an Attention Tone in the audio packet using FFT bandpass filtering.
+        Returns True if detected, False otherwise.
+        """
         dBDect = 10
         fin = []
         bandPasses = [
@@ -212,6 +257,9 @@ class AS_MON(Process):
 
     @classmethod
     def __alertToOld__(cls, ZCZC, alert):
+        """
+        Store a received alert in the alert history (by ZCZC header).
+        """
         if ZCZC in cls.__receivedAlertsIndex__:
             cls.__receivedAlerts__[ZCZC] = alert
         else:
@@ -220,6 +268,9 @@ class AS_MON(Process):
 
     @classmethod
     def __alertFromOld__(cls, index: int = 0) -> dict:
+        """
+        Pop and return an old alert from the alert history by index.
+        """
         try:
             alert = cls.__receivedAlertsIndex__.pop(index)
             prevAlert = cls.__receivedAlerts__.pop(alert)
@@ -240,6 +291,10 @@ class AS_MON(Process):
         return {alert: prevAlert}
 
     def __decoder__(self):
+        """
+        Decoder thread: Reads and decodes SAME/EAS headers from the subprocess, applies filters, and updates alert state.
+        Handles alert expiry, filter matching, and logging.
+        """
         utilities.autoPrint(
             text=f"Monitor {self.__monitorName__}: Opening Decoder Thread.",
             classType="DECODER",
@@ -603,6 +658,10 @@ class AS_MON(Process):
         return
 
     def __FilterManager__(self, ORG: str, EVNT: str, FIPS: str, CALL: str):
+        """
+        Checks all configured filters to determine if an alert should be relayed, ignored, or handled specially.
+        Returns a dict with match status and actions.
+        """
         utilities.autoPrint(
             text=f"Monitor {self.__monitorName__}: Checking Filters...",
             classType="FILTER",
@@ -705,6 +764,10 @@ class AS_MON(Process):
                     tb = tb.tb_next
 
     def __recorder__(self):
+        """
+        Recorder thread: Reads audio from the stream, detects attention tones, and records alert audio, and manages live/relay state.
+        Handles audio normalization, segmenting, and exporting.
+        """
         utilities.autoPrint(
             text=f"Monitor {self.__monitorName__}: Opening Monitor Thread.",
             classType="MONITOR",
@@ -1267,6 +1330,9 @@ class AS_MON(Process):
     #         cls.__pendingAlerts__.remove(Alert)
 
     def __relayManager__(self, alertData, alert, header):
+        """
+        Manages the timing and relaying of alerts based on filter actions (immediate or delayed).
+        """
         def alertWait(Data, filter):
             timeout = int(filter.split(":")[1])
             for i in range(timeout * 60):
@@ -1324,6 +1390,11 @@ class AS_MON(Process):
 
 
 class AS_MAN:
+    """
+    ASMARA Manager (AS_MAN)
+    Handles configuration, monitor management, playout, logging, and system state for the ASMARA system.
+    Spawns and coordinates all threads and monitors.
+    """
     global currentAlert
     global liveAlert
     version = "0.1.69"
@@ -1358,6 +1429,9 @@ class AS_MAN:
     __alertSent__ = False
 
     @classmethod
+    """
+    Increment alert/override/live/CAP/message counters for statistics.
+    """
     def __addCount__(cls, type):
         if type == "Override":
             cls.__overrideCount__ += 1
@@ -1371,15 +1445,24 @@ class AS_MAN:
         cls.__messageCount__ += 1
 
     @classmethod
+    """
+    Set current configuration and config file path.
+    """
     def __setConfig__(cls, config, configFile):
         cls.__config__ = config
         cls.__configFile__ = configFile
 
     @classmethod
+    """
+    Set the log file path from config.
+    """
     def __setLog__(cls):
         cls.__logFile__ = cls.__config__["LogFile"]
 
     @classmethod
+    """
+    Set the station callsign, trimming or padding as needed.
+    """
     def __setCallsign__(cls):
         if len(cls.__config__["Callsign"]) <= 8:
             cls.__callsign__ = cls.__config__["Callsign"].ljust(8, " ")
@@ -1395,6 +1478,9 @@ class AS_MAN:
     def __setLocalFIPS__(
         cls,
     ):
+        """
+        Set the list of local FIPS codes from config, ignoring 'LOC' and 'LOCAL'.
+        """
         locFips = cls.__config__["LocalFIPS"]
         for i in locFips:
             if i.upper() not in ["LOC", "LOCAL"]:
@@ -1402,20 +1488,32 @@ class AS_MAN:
 
     @classmethod
     def __setSamplerate__(cls):
+        """
+        Set the audio sample rate for playout from config.
+        """
         cls.__samplerate__ = cls.__config__["PlayoutManager"]["SampleRate"]
 
     @classmethod
     def __setChannels__(cls):
+        """
+        Set the number of audio channels for playout from config.
+        """
         cls.__channels__ = cls.__config__["PlayoutManager"]["Channels"]
 
     @classmethod
     def __setLogger__(cls):
+        """
+        Set logger state, webhooks, and audio logging from config.
+        """
         cls.__logger__ = cls.__config__["Logger"]["Enabled"]
         cls.__webhooks__ = cls.__config__["Logger"]["Webhooks"]
         cls.__loggerAud__ = cls.__config__["Logger"]["Audio"]
 
     @classmethod
     def __setEmail__(cls):
+        """
+        Set email logging state from config.
+        """
         if cls.__config__["Logger"]["Email"]["Enabled"]:
             cls.__email__ = cls.__config__["Logger"]["Email"]
         else:
@@ -1423,6 +1521,9 @@ class AS_MAN:
 
     @classmethod
     def __setExport__(cls):
+        """
+        Set export state and folder from config.
+        """
         cls.__export__ = cls.__config__["PlayoutManager"]["Export"]["Enabled"]
         cls.__exportFolder__ = cls.__config__["PlayoutManager"]["Export"][
             "Folder"
@@ -1430,10 +1531,16 @@ class AS_MAN:
 
     @classmethod
     def __setFilters__(cls):
+        """
+        Set alert filter from config.
+        """
         cls.__filters__ = cls.__config__["Filters"]
 
     @classmethod
     def __setIcePlayout__(cls):
+        """
+        Set Icecast playout state and server config from config.
+        """
         cls.__icecastPlayout__ = cls.__config__["PlayoutManager"]["Icecast"][
             "Enabled"
         ]
@@ -1441,6 +1548,9 @@ class AS_MAN:
 
     @classmethod
     def __killIcePlayer__(cls):
+        """
+        Kill the Icecast playout process if running.
+        """
         if cls.__icePlayer__ != None:
             cls.__icePlayer__.kill()
             sleep(1)
@@ -1448,6 +1558,9 @@ class AS_MAN:
 
     @classmethod
     def __setIcePlayer__(cls):
+        """
+        Start the Icecast playout process with the configured codec and server settings.
+        """
         utilities.autoPrint(
             text="Creating Playout (Icecast)",
             classType="PLAYOUT",
@@ -1495,6 +1608,9 @@ class AS_MAN:
 
     @classmethod
     def __setLeadIn__(cls):
+        """
+        Load and prepare the lead-in audio segment if enabled in config.
+        """
         if cls.__config__["PlayoutManager"]["LeadIn"]["Enabled"]:
             file = cls.__config__["PlayoutManager"]["LeadIn"]["File"]
             type = cls.__config__["PlayoutManager"]["LeadIn"]["Type"]
@@ -1508,6 +1624,9 @@ class AS_MAN:
 
     @classmethod
     def __setLeadOut__(cls):
+        """
+        Load and prepare the lead-out audio segment if enabled in config.
+        """
         if cls.__config__["PlayoutManager"]["LeadOut"]["Enabled"]:
             file = cls.__config__["PlayoutManager"]["LeadOut"]["File"]
             type = cls.__config__["PlayoutManager"]["LeadOut"]["Type"]
@@ -1522,6 +1641,9 @@ class AS_MAN:
             )
 
     def __loadLogs__(self):
+        """
+        Load alert logs from the log file into memory for alert history.
+        """
         try:
             with open(self.__logFile__, "r") as f:
                 utilities.autoPrint(
@@ -1563,6 +1685,9 @@ class AS_MAN:
                 dump(var, f, indent=4)
 
     def __makeConfig__(self):
+        """
+        Placeholder for initial config setup script
+        """
         utilities.autoPrint(
             text="New Config Made, please configure it properly before use.",
             classType="MAIN",
@@ -1572,9 +1697,15 @@ class AS_MAN:
 
     @classmethod
     def __setTone__(cls):
+        """
+        Set the AutoDJ tone from config.
+        """
         cls.__tone__ = cls.__config__["PlayoutManager"]["AutoDJ"]["Tone"]
 
     def __loadConfig__(self):
+        """
+        Load all configuration and initialize system state, logs, and audio assets.
+        """
         self.__setLog__()
         self.__setIcePlayout__()
         self.__setCallsign__()
@@ -1592,9 +1723,15 @@ class AS_MAN:
 
     @classmethod
     def __changeState__(cls):
+        """
+        Set the system run state to True.
+        """
         cls.__run__ = True
 
     def __init__(self, configFile) -> None:
+        """
+        Initialize the ASMARA Manager, load config, spawn all threads and monitors.
+        """
         self.__configFile__ = configFile
         if self.__run__ != True:
             self.__changeState__()
@@ -1678,6 +1815,9 @@ class AS_MAN:
 
     @classmethod
     def __killMonitors__(cls):
+        """
+        Kill all running monitor processes and clear monitor lists.
+        """
         utilities.autoPrint(
             text=f"Killing Monitors...",
             classType="MANAGER",
@@ -1693,6 +1833,9 @@ class AS_MAN:
 
     @classmethod
     def killAsmara(cls):
+        """
+        Kill all monitors, playout, and background services. Used for shutdown.
+        """
         if AS_MON.__run__:
             cls.__killMonitors__()
         cls.__icecastPlayout__ = False
@@ -1724,6 +1867,9 @@ class AS_MAN:
         return
 
     def __alertFileDump__(self, alerts: list = []):
+        """
+        Write a list of alert dicts to the log file for persistence.
+        """
         if len(alerts) == 0:
             pass
         else:
@@ -1736,6 +1882,9 @@ class AS_MAN:
         return
 
     def __AlertCountManager__(self):
+        """
+        Thread: Periodically dumps old alerts to disk and manages alert history size.
+        """
         alerts = []
         while self.__run__:
             if len(AS_MON.__receivedAlertsIndex__) > 50:
@@ -1770,6 +1919,10 @@ class AS_MAN:
         self.__alertFileDump__(alerts=alerts)
 
     def __overrideManager__(self):
+        """
+        Thread: Monitors the override folder for new audio files (WAV/MP3), and adds them to the playout, removes them after use.
+        Handles CAP alerts and regular override files.
+        """
         while self.__run__:
             sleep(0.5)  # High number because Low Prio
             overrideFolder = self.__config__["PlayoutManager"]["Override"][
@@ -1958,6 +2111,9 @@ class AS_MAN:
                         remove(path.join(r, file))
 
     def __dataPump__(self):
+        """
+        Thread: Moves alerts from currentAlert to playout if playout is enabled, or discards if not.
+        """
         global liveAlert
         global currentAlert
         while self.__run__:
@@ -1980,6 +2136,9 @@ class AS_MAN:
             sleep(0.25)
 
     def __autoDJ__(self):
+        """
+        Thread: Handles AutoDJ music and ID playback when no alerts are active. Loads music and ID libraries, shuffles and plays tracks.
+        """
         utilities.autoPrint(
             text="Started.",
             classType="AUTODJ",
@@ -2195,6 +2354,9 @@ class AS_MAN:
 
     @classmethod
     def __makeURLReady__(cls, data):
+        """
+        URL-encode a string for Icecast metadata updates.
+        """
         return (
             data.replace("%", "%25")
             .replace("$", "%24")
@@ -2225,6 +2387,9 @@ class AS_MAN:
 
     @classmethod
     def __UpdateIcecastNP__(cls, server, data):
+        """
+        Update Icecast server with new Now Playing metadata.
+        """
         try:
             get(
                 f"http://{server['Address']}:{server['Port']}/admin/metadata?mount=/{server['Mountpoint']}&mode=updinfo&song={cls.__makeURLReady__(data)}",
@@ -2258,6 +2423,9 @@ class AS_MAN:
                 tb = tb.tb_next
 
     def __playout__(self):
+        """
+        Thread: Handles playout of alerts and music to Icecast or other outputs. Manages live/override/alert playback, handles errors, and updates metadata.
+        """
         global currentAlert
         iceWorking = False
         if self.__icecastPlayout__:
@@ -2645,6 +2813,9 @@ class AS_MAN:
 
 
 def main(configFile):
+    """
+    Main entrypoint for ASMARA. Instantiates AS_MAN and starts the main loop.
+    """
     utilities.autoPrint("Begin BOOT Sequence...")
     try:
         Endec = AS_MAN(configFile=configFile)
@@ -2664,6 +2835,9 @@ def main(configFile):
 
 
 def boot():
+    """
+    CLI entrypoint for ASMARA. Handles argument parsing, version/about, and starts main().
+    """
     parser = ArgumentParser(description="MissingTextures Software ASMARA)")
     parser.add_argument(
         "configFile",
